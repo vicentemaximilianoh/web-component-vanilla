@@ -1,0 +1,142 @@
+
+<template>
+    <style>
+        h1 { color: green }
+        .card {
+            width: 400px;
+            padding: 10px;
+            border: 1px solid #f0f0f0;
+            border-radius: 10px;
+            box-shadow:  10px 10px 10px rgba(0, 0, 0, 0.5);
+            display: table;
+        }
+        .card--body {
+            display: table-cell;
+            vertical-align: middle;
+        }
+        .card--avatar {
+            width: 128px;
+            height: 128px;
+            display: table-cell;
+            border-radius: 50%;
+        }
+        .card--title {
+            padding: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .card--subtitle {
+            padding: 5px 10px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .card--footer {
+            clear: both;
+        }
+    </style>
+    <div class="card">
+        <img width="50px" class="card--avatar" src="" />
+        <div class="card--body">
+            <div class="card--title"></div>
+            <div class="card--subtitle"></div>
+        </div>
+        <div class="card--footer"></div>
+    </div>
+</template>
+
+<script type="text/javascript">
+(function(window, document, undefined) {
+    // Refers to the "importer", which is index.html
+    var thatDoc = document;
+    // Refers to the "importee", which is src/hello-world.html
+    var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+
+    // 1 - Get content from template tag.
+    var template = thisDoc.querySelector('template').content;
+
+    // 2 - Creates and object based in the HTML Element prototype.
+    var proto = Object.create(HTMLElement.prototype);
+
+    // ...and do some work on it.
+    proto.avatar = '';
+    proto.title1 = 'Title';
+    proto.subtitle = 'Subtitle';
+
+
+
+    proto.createdCallback = function createdCallback(data) {
+        console.log('created element!', proto, data);
+        // Creates the shadow root
+        var shadowRoot = this.createShadowRoot();
+        // Adds a template clone into shadow root
+        var clone = thatDoc.importNode(template, true);
+        shadowRoot.appendChild(clone);
+
+        this.cardTitle = shadowRoot.querySelector('.card--title');
+        this.cardSubtitle = shadowRoot.querySelector('.card--subtitle');
+        this.cardAvatar = shadowRoot.querySelector('.card--avatar');
+
+        if (this.hasAttribute('card-title')) {
+            var title = this.getAttribute('card-title');
+            this.setTitle(title);
+        }
+        else {
+            this.setTitle(this.title1);
+        }
+
+        if (this.hasAttribute('card-subtitle')) {
+            var subtitle = this.getAttribute('card-subtitle');
+            this.setSubtitle(subtitle);
+        }
+        else {
+            this.setSubtitle(this.subtitle);
+        }
+
+        if (this.hasAttribute('card-avatar')) {
+            var avatar = this.getAttribute('card-avatar');
+            this.setAvatar(avatar);
+        }
+        else {
+            this.setAvatar(this.avatar);
+        }
+    };
+
+    function setImage(src) {
+        var pic;
+        pic = new Image(36,36);
+        pic.src = src;
+        // This is correct and the path is correct
+        console.log(pic, src);
+        return pic;
+    }
+
+    proto.attributeChangedCallback = function attributeChangedCallback(attr, oldVal, newVal) {
+        console.log('attribute changed element!', attr, newVal);
+        if (attr === 'avatar') { proto.setSrc(newVal); }
+        if (attr === 'title') { proto.setTitle(newVal); }
+        if (attr === 'subtitle') { proto.setSubtitle(newVal); }
+    };
+
+    proto.setAvatar = function setAvatar(avatar) {
+        this.avatar = setImage(avatar);
+        this.cardAvatar.src = avatar;
+    }
+
+    proto.setTitle = function setTitle(val) {
+        this.title1 = val;
+        this.cardTitle.textContent = this.title1;
+    }
+
+    proto.setSubtitle = function setSubtitle(val) {
+        this.subtitle = val;
+        this.cardSubtitle.textContent = this.subtitle;
+    }
+
+    // 3 - Register element in the document.
+    thatDoc.registerElement('presentation-card', {
+        prototype: proto
+    });
+
+            console.log('TEST!');
+})(window, document);
+</script>
